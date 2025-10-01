@@ -1,10 +1,11 @@
-import express from "express";
+// import express from "express";
 import dotenv from "dotenv";
+import app  from "./app.js";
 import connectDB from "./db/index.js"; // ✅ Import properly
 
 dotenv.config();
 
-const app = express();
+// const app = express();
 
 connectDB()
 .then(()=>{

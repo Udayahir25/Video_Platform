@@ -22,6 +22,11 @@ import userRouter from './routes/user.routes.js'
 //routes declaration
 app.use("/api/v1/users", userRouter)
 
+// Test route
+// app.get("/test", (req, res) => {
+//     res.json({ message: "Server is working!" });
+// });
+
 // http://localhost:8000/api/v1/users/register
 
 export { app }

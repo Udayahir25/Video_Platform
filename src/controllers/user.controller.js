@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User} from "../models/user.model.js"
@@ -134,8 +135,8 @@ const logoutUser = asyncHandler(async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set:{
-                refreshToken: undefined
+            $unset:{
+                refreshToken: 1
             }
         },
         {
@@ -218,7 +219,7 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200,{},"Password changed successfully"))
 })
 
-const getCuurentUser = asyncHandler(async(req, res) => {
+const getCurentUser = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"))
@@ -304,6 +305,7 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 
 const getUserChannelProfile = asyncHandler(async(req,res) => {
     const {username} = req.params;
+    // console.log("LOOKING FOR USERNAME:", username);
     if(!username?.trim()){
         throw new ApiError(400,"username is missing")
     }
@@ -311,8 +313,12 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
     const channel = await User.aggregate([
         {
             $match: {
-                username: username?.toLowerCase()
-            }
+        // Find the username, ignoring case ($options: 'i')
+        username: { 
+            $regex: `^${username}$`, // ^ and $ ensure it matches the whole string
+            $options: 'i' 
+        }
+    }
         },
         {
             $lookup: {
@@ -361,8 +367,8 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
      }
     ])
 
-    if (!channel.length) {
-        throw new ApiError(404,"channel does not exists");  
+    if (!channel?.length) {
+        throw new ApiError(404, "channel does not exists")
     }
 
     return res
@@ -432,7 +438,7 @@ export {
     logoutUser,
     refreshAccessToken,
     changeCurrentPassword,
-    getCurrentUser,
+    getCurentUser,
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
